@@ -1,0 +1,35 @@
+{
+  "name": "http-forwarder",
+  "version": "1.2.0",
+  "description": "A simple and configurable HTTP forwarder: streams incomming requests to a list of target servers",
+  "repository": "radiofrance/node-http-forwarder",
+  "keywords": [
+    "http",
+    "https",
+    "request",
+    "forward",
+    "utility",
+    "util",
+    "load-balancing",
+    "proxy"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "dependencies": {
+    "eventemitter3": "^2.0.2"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^3.16.1",
+    "eslint-plugin-node": "^4.1.0",
+    "mocha": "^3.2.0"
+  },
+  "scripts": {
+    "test": "eslint lib test index.js && mocha"
+  },
+  "author": "Radio France",
+  "license": "CECILL-B"
+}
+
