@@ -1,6 +1,6 @@
-# node-http-forwarder
+# Forwarder HTTP
 
-```node-http-forwarder``` est un utilitaire pour transférer des requêtes
+```forwarder-http``` est un utilitaire pour transférer des requêtes
 HTTP/HTTPS à une liste de serveurs cible. À chaque requête :
 
 Il est conçu pour être simple, configurable et extensible via toute sorte
@@ -20,7 +20,7 @@ qui soit petite et très performante.
 Le meilleur moyen de l'expliquer est via un exemple
 
 ```
-const Forwarder = require('node-http-forwarder')
+const Forwarder = require('forwarder-http')
 
 const server = new Forwarder({
   // La liste de serveurs cible
@@ -34,7 +34,7 @@ const server = new Forwarder({
 })
 ```
 
-Vous trouverez dans le répertoire [exemples](https://github.com/radiofrance/node-http-forwarder/blob/master/examples) plusieurs autres types d'utilisation, comment utiliser les évenements, comment passer par HTTPS, ...
+Vous trouverez dans le répertoire [exemples](https://github.com/radiofrance/node-forwarder-http/forwarder/blob/master/examples) plusieurs autres types d'utilisation, comment utiliser les évenements, comment passer par HTTPS, ...
 
 ## Options
 
@@ -43,9 +43,9 @@ Le constructeur du `Forwarder` constructor a quelques options, dont le but est d
 - **https**: _bool_. Créer un serveur HTTPS (Défaut ```false```)
 - **https**: _object_. Options à passer au constructeur _https.createServer_.
 - **timeout**: _int_. Timeout dans les requêtes aux serveurs cible. (Défaut: null)
-- **forwardTargets**: _array_. Liste des serveurs cible. Cf. [les exemples](https://github.com/radiofrance/node-http-forwarder/blob/master/examples).
+- **forwardTargets**: _array_. Liste des serveurs cible. Cf. [les exemples](https://github.com/radiofrance/node-forwarder-http/blob/master/examples).
 - **forwardHeaders**: _object_. En-têtes à ajouter à la requête transférée. (Défaut: aucun)
-- **forwardOpts**: _object_. Options  à passer au constructeur de la requête http/https. Voir [l'example](https://github.com/radiofrance/node-http-forwarder/blob/master/examples/using-https) et [toutes les options disponibles](https://nodejs.org/api/https.html#https_https_request_options_callback)
+- **forwardOpts**: _object_. Options  à passer au constructeur de la requête http/https. Voir [l'example](https://github.com/radiofrance/node-forwarder-http/blob/master/examples/using-https) et [toutes les options disponibles](https://nodejs.org/api/https.html#https_https_request_options_callback)
 - **responseStatusCode**: Status code que le serveur envoie au client.
 - **responseBody**: body que le serveur envoie au client.
 - **responseHeaders**: En-têtes que le serveur doit ajouter à sa réponse.
@@ -72,11 +72,11 @@ gérer chaque réponse de chaque cible.
 - **forwardRequestError** ```(error, request)```: erreur dans une des
 requêtes transférées.
 
-Voir comment [utiliser les événements](https://github.com/radiofrance/node-http-forwarder/blob/master/examples/using-events.js).
+Voir comment [utiliser les événements](https://github.com/radiofrance/node-forwarder-http/blob/master/examples/using-events.js).
 
 ## Remerciements
 
 -
-**[node-http-proxy](https://github.com/radiofrance/node-http-forwarder/blob/master/examples/using-http://github.com/nodejitsu/node-http-proxy)**:
+**[node-http-proxy](https://github.com/nodejitsu/node-http-proxy)**:
 notre librairie a commencée comme une version simplifiée et modernisée de celle-ci. ```node-http-proxy``` peut également servir de proxy et supporte des versions de node plus anciennes. Elle ne permet cependant qu'une seule cible dans le transfer des requêtes, ce qui ne répondait pas à notre besoin. Finalement nous avons tout re-écrit, mais merci beaucoup aux équipes de [nodejitsu](https://nodejitsu.com/) pour l'inspiration.
 

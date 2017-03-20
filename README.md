@@ -1,6 +1,6 @@
-# node-http-forwarder
+# Forwarder HTTP
 
-```node-http-forwarder``` is a simple HTTP/HTTPS forwarder. On each request it :
+```forwarder-http``` is a simple HTTP/HTTPS forwarder. On each request it :
 
 - Replies to the sender immediately with a ```200``` (unless you configure it
 otherwise)
@@ -20,7 +20,7 @@ incomming production data to different development environments.
 An example is worth a thousand words:
 
 ```javascript
-const Forwarder = require('node-http-forwarder')
+const Forwarder = require('forwarder-http')
 
 const server = new Forwarder({
   // The servers to forward the request to
@@ -35,7 +35,7 @@ const server = new Forwarder({
 ```
 
 You'll more detailed examples in the [Examples
-directory](https://github.com/radiofrance/node-http-forwarder/blob/master/examples)
+directory](https://github.com/radiofrance/node-forwarder-http/blob/master/examples)
 
 ## Options
 
@@ -50,14 +50,14 @@ Required when using https.
 [the examples](https://github.com/radiofrance/node-http-forwarder/blob/master/examples).
 - **forwardHeaders**: _object_. Headers to add to the forwarded request
 (Default: empty).
-- **forwardOpts**: _object_. Options to pass to the http/https request constructor. See [the example](https://github.com/radiofrance/node-http-forwarder/blob/master/examples/using-https) and [all the options](https://nodejs.org/api/https.html#https_https_request_options_callback)
+- **forwardOpts**: _object_. Options to pass to the http/https request constructor. See [the example](https://github.com/radiofrance/node-forwarder-http/blob/master/examples/using-https) and [all the options](https://nodejs.org/api/https.html#https_https_request_options_callback)
 - **responseStatusCode**: _int_. Status code the forward server will use when responding to requests (Default: 200)
 - **responseBody**: _string_. Body the forward server will use when responding to requests (Default: 'OK')
 - **responseHeaders**: _object_. Headers the forward server will use when responding to requests (Default: empty)
 
 ## Events
 
-The ```node-http-forwarder``` library allows you to hook into most of the lifecycle to the
+The ```forwarder-http``` library allows you to hook into most of the lifecycle to the
 forwarding process, and change all the requests and responses along the way.
 
 - **request** ```(incommingMessage, response)```: The resquest event from the
@@ -78,9 +78,9 @@ individual target responses.
 - **forwardRequestError** ```(error, request)```: error when forwarding
 a request to specific targets.
 
-See [the example on how to use the events](https://github.com/radiofrance/node-http-forwarder/blob/master/examples/using-events.js).
+See [the example on how to use the events](https://github.com/radiofrance/node-forwarder-http/blob/master/examples/using-events.js).
 
 ## Acknoledgments
 
-- **[node-http-proxy](https://github.com/radiofrance/node-http-forwarder/blob/master/examples/using-http://github.com/nodejitsu/node-http-proxy)**: our library started as a forked and simplified version of this library. ```node-http-proxy``` also does proxying, which we do not, also supports versions of node older that 6.0.0, which we do not. But only handles a single forward target server, which didn't solve our problem. We ended up re-writing the whole thing. Anyway, many thanks to the folks at [nodejitsu](https://nodejitsu.com/) for this great pice of code.
+- **[node-http-proxy](https://github.com/nodejitsu/node-http-proxy)**: our library started as a forked and simplified version of this library. ```node-http-proxy``` also does proxying, which we do not, also supports versions of node older that 6.0.0, which we do not. But only handles a single forward target server, which didn't solve our problem. We ended up re-writing the whole thing. Anyway, many thanks to the folks at [nodejitsu](https://nodejitsu.com/) for this great pice of code.
 
