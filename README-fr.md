@@ -1,5 +1,8 @@
 # Forwarder HTTP
 
+[![Build
+Status](https://travis-ci.org/radiofrance/node-forwarder-http.svg?branch=master)](https://travis-ci.org/radiofrance/node-forwarder-http)
+
 ```forwarder-http``` est un utilitaire pour transférer des requêtes
 HTTP/HTTPS à une liste de serveurs cible. À chaque requête :
 

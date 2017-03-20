@@ -1,5 +1,8 @@
 # Forwarder HTTP
 
+[![Build
+Status](https://travis-ci.org/radiofrance/node-forwarder-http.svg?branch=master)](https://travis-ci.org/radiofrance/node-forwarder-http)
+
 ```forwarder-http``` is a simple HTTP/HTTPS forwarder. On each request it :
 
 - Replies to the sender immediately with a ```200``` (unless you configure it
