@@ -1,10 +1,10 @@
 {
-  "name": "http-forwarder",
+  "name": "forwarder-http",
   "version": "1.2.0",
   "description": "A simple and configurable HTTP forwarder: streams incomming requests to a list of target servers",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/radiofrance/node-http-forwarder.git"
+    "url": "git+https://github.com/radiofrance/node-forwarder-http.git"
   },
   "keywords": [
     "http",
@@ -32,14 +32,18 @@
   "scripts": {
     "test": "eslint lib test index.js && mocha"
   },
-  "author": "Radio France",
+  "author": "Radio France <opensource@radiofrance.com>",
+  "contributors": [
+    "Rodolfo Ripado <ggaspaio@gmail.com>"
+  ],
   "license": "CECILL-B",
   "bugs": {
-    "url": "https://github.com/radiofrance/node-http-forwarder/issues"
+    "url": "https://github.com/radiofrance/node-forwarder-http/issues"
   },
-  "homepage": "https://github.com/radiofrance/node-http-forwarder#readme",
+  "homepage": "https://github.com/radiofrance/node-forwarder-http#readme",
   "directories": {
     "example": "examples",
     "test": "test"
   }
 }
+
