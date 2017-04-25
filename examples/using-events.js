@@ -12,7 +12,7 @@ const Forwarder = require('../lib/Forwarder')
 
 const server = new Forwarder({
   // The servers to forward the request to. One of them doesn't exist.
-  forwardTargets: ['http://127.0.0.1:9001', 'http://127.0.0.1:9002', 'http://127.0.0.1:9003'],
+  targets: ['http://127.0.0.1:9001', 'http://127.0.0.1:9002', 'http://127.0.0.1:9003'],
 })
 server.listen(9000)
 
@@ -32,15 +32,15 @@ server.on('response', (inc, res) => {
   res.setHeader('x-query-token', inc.headers['x-query-token'])
 })
 
-server.on('forwardRequest', info => {
+server.on('forwardRequest', params => {
   // Cancel requests to a target
-  if (info.host === '127.0.0.1:9002') {
-    info.cancel = true
+  if (params.request.host === '127.0.0.1:9002') {
+    params.cancel = true
   }
 
   // Set a header on all forwards for a specific target
-  if (info.headers['host'] === '127.0.0.1:9001') {
-    info.headers['who-are-you'] = 'I am Groot'
+  if (params.request.headers.host === '127.0.0.1:9001') {
+    params.request.headers['who-are-you'] = 'I am Groot'
   }
 })
 
@@ -50,7 +50,7 @@ server.on('forwardResponse', (req, inc) => {
 })
 
 // Capture errors in any of the targets
-server.on('forwardRequestError', (err, req) => {
+server.on('forwardRequestError', (err, req, willRetry) => {
   console.log(`TARGET ${req.getHeader('host')} failed: ${err.code} ${err.message}`)
 })
 

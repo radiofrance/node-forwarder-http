@@ -6,6 +6,10 @@ Status](https://travis-ci.org/radiofrance/node-forwarder-http.svg?branch=master)
 ```forwarder-http``` est un utilitaire pour transférer des requêtes
 HTTP/HTTPS à une liste de serveurs cible. À chaque requête :
 
+- Répond immédiatement au client avec un code ```200``` (configurable)
+- Transfère la requête à un ensemble de serveurs
+- Peux être configuré pour faire des retry individuelement, par destination.
+
 Il est conçu pour être simple, configurable et extensible via toute sorte
 d''événements.
 
@@ -27,10 +31,21 @@ const Forwarder = require('forwarder-http')
 
 const server = new Forwarder({
   // La liste de serveurs cible
-  forwardTargets: ['http://target-nb-1.com', 'http://target-nb-2'],
+  targets: [
+    'http://target-nb-1.com', // config simple, utilise les configs par défault
+    {                         // config complète, supplante certaines configs
+      url: 'http://target-nb-2.com',
+      headers: {
+        'my-nb1-header': 'my-nb1-val'
+      },
+      retry: {
+        maxRetries: 3
+      }
+    }
+  ],
 
   // Ajout d'un header à toute requête entrante
-  forwardHeaders: {'token': 'some-complicated-hash'},
+  targetHeaders: {'token': 'some-complicated-hash'},
 
   // Définition du code de retour de l'application à chaque requête
   responseStatusCode: 204
@@ -46,9 +61,14 @@ Le constructeur du `Forwarder` constructor a quelques options, dont le but est d
 - **https**: _bool_. Créer un serveur HTTPS (Défaut ```false```)
 - **https**: _object_. Options à passer au constructeur _https.createServer_.
 - **timeout**: _int_. Timeout dans les requêtes aux serveurs cible. (Défaut: null)
-- **forwardTargets**: _array_. Liste des serveurs cible. Cf. [les exemples](https://github.com/radiofrance/node-forwarder-http/blob/master/examples).
-- **forwardHeaders**: _object_. En-têtes à ajouter à la requête transférée. (Défaut: aucun)
-- **forwardOpts**: _object_. Options  à passer au constructeur de la requête http/https. Voir [l'example](https://github.com/radiofrance/node-forwarder-http/blob/master/examples/using-https) et [toutes les options disponibles](https://nodejs.org/api/https.html#https_https_request_options_callback)
+- **targets**: _array_. Liste des serveurs cible. Cf. [les exemples](https://github.com/radiofrance/node-forwarder-http/blob/master/examples).
+- **targetHeaders**: _object_. En-têtes à ajouter à la requête transférée. (Défaut: aucun)
+- **targetOpts**: _object_. Options  à passer au constructeur de la requête http/https. Voir [l'example](https://github.com/radiofrance/node-forwarder-http/blob/master/examples/using-https) et [toutes les options disponibles](https://nodejs.org/api/https.html#https_https_request_options_callback)
+- **targetRetry** _object_. Options de retry pour toutes les cibles
+    - **maxRetries**: _int_, default 0.
+    - **delay**: _int_, default 300 (ms). L'unité de temps pour le calcul de l'intervale entre retry successifs (cf. [Wikipedia Exponential Backoff](https://en.wikipedia.org/wiki/Exponential_backoff))
+    - **retryOnInternalError**: _bool_, default false. Le forwarder doit-il faire des retry si la cible répond avec un
+    code 5xx ?
 - **responseStatusCode**: Status code que le serveur envoie au client.
 - **responseBody**: body que le serveur envoie au client.
 - **responseHeaders**: En-têtes que le serveur doit ajouter à sa réponse.
@@ -70,9 +90,9 @@ requête transférée à chaque cible. Le premier argument est le array passé a
 [https.request](https://nodejs.org/api/https.html#https_https_request_options_callback), après que
 toutes les configurations ont été appliquées. Si vous faîtes ```options.cancel = true```, la requête actuelle ne
 sera pas transférée à la cible courante. Vous trouverez dans les exemples un ... exemple de ceci.
-- **forwardResponse** ```(request, incommingMessage)```: vous permet de
+- **forwardResponse** ```(request, incommingMessagei, willRetry)```: vous permet de
 gérer chaque réponse de chaque cible.
-- **forwardRequestError** ```(error, request)```: erreur dans une des
+- **forwardRequestError** ```(error, request, willRetry)```: erreur dans une des
 requêtes transférées.
 
 Voir comment [utiliser les événements](https://github.com/radiofrance/node-forwarder-http/blob/master/examples/using-events.js).
