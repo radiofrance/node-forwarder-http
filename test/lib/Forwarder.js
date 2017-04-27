@@ -74,12 +74,12 @@ describe('Forwarder', () => {
           {
             url: 'http://www.google.com',
             opts: {someTargetOpt: 'someTargetOptVal', someOpt: 'someValTarget'},
-            headers: {someTargetHeader: 'someTargetHeaderVal'},
+            headers: {someTargetHeader: 'someTargetHeaderVal', someHeader: 'someHeaderValInTarget'},
             retry: {delay: 500}
           }
         ],
         targetOpts: {someOpt: 'someVal', defaultOpt: 'defaultVal'},
-        targetHeaders: {someHeaders: 'someHeaderVal'},
+        targetHeaders: {someHeader: 'someHeaderVal'},
         targetRetry: {maxRetries: 6}
       }
       const forwarder = new Forwarder(config)
@@ -93,7 +93,7 @@ describe('Forwarder', () => {
         defaultOpt: 'defaultVal'           // config only
       })
       assert.deepEqual(target.headers, {
-        someHeaders: 'someHeaderVal',
+        someHeader: 'someHeaderValInTarget',
         someTargetHeader: 'someTargetHeaderVal'
       })
       assert.deepEqual(target.retry, {
@@ -145,7 +145,7 @@ describe('Forwarder', () => {
       done()
     })
 
-    it('Appends the incomming path to the target URL', done => {
+    it('Appends the incoming path to the target URL', done => {
       const inc = {method: 'GET', url:'http://somehost.com/reqpath/bonus'}
       const params = Forwarder.buildRequestParams({
         url: 'http://www.bingo.com/basepath',

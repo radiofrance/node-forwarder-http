@@ -11,7 +11,7 @@ HTTP/HTTPS à une liste de serveurs cible. À chaque requête :
 - Peux être configuré pour faire des retry individuelement, par destination.
 
 Il est conçu pour être simple, configurable et extensible via toute sorte
-d''événements.
+d'événements.
 
 Actuellement, seule les versions de node ```>=6.x.x``` sont supportées.
 
@@ -56,7 +56,7 @@ Vous trouverez dans le répertoire [exemples](https://github.com/radiofrance/nod
 
 ## Options
 
-Le constructeur du `Forwarder` constructor a quelques options, dont le but est de permettre à l'utilisateur de contrôler comment chaque requête à chaque cible est faîte et la réponse au client.
+Le constructeur du `Forwarder` a quelques options dont le but est de permettre à l'utilisateur de contrôler comment chaque requête à chaque cible est faîte et la réponse au client.
 
 - **https**: _bool_. Créer un serveur HTTPS (Défaut ```false```)
 - **https**: _object_. Options à passer au constructeur _https.createServer_.
