@@ -12,9 +12,9 @@ const Forwarder = require('../lib/Forwarder')
 
 const server = new Forwarder({
   // The servers to forward the request to
-  forwardTargets: ['http://127.0.0.1:9001', 'http://127.0.0.1:9002'],
+  targets: ['http://127.0.0.1:9001', 'http://127.0.0.1:9002'],
   // Add a header to the request before forwarding
-  forwardHeaders: {'some-header': 'some-val'},
+  targetHeaders: {'some-header': 'some-val'},
   // Define the forwarder response statusCode (default: 200)
   responseStatusCode: 204,
   // Define headers in the forwarder response
@@ -42,7 +42,7 @@ http.request({
   method: 'POST'
 }, res => {
   console.log(
-    `SCRIPT:    forwarder replied with statusCode=${res.statusCode} and header "another-header"=${res.headers['another-header']}`
+    `SCRIPT:    forwarder replied with statusCode=${res.statusCode} and header "another-header=${res.headers['another-header']}"`
   )
 }).end()
 

@@ -12,38 +12,13 @@ let currentPort = 1024
 const getPort = () => currentPort++
 
 describe('Forwarder HTTP', () => {
-
-  it('The constructor should throw if no targets are defined in the options', done => {
-    let error
-    try {
-      new Forwarder({})
-    } catch (err) {
-      error = err
-    }
-
-    assert.instanceOf(error, Error)
-    done()
-  })
-
-  it('The constructor should throw if there are invalid URLs as targets in the options', done => {
-    let error
-    try {
-      new Forwarder({forwardTargets: ['this is not an url', 'http://127.0.0.1:12345']})
-    } catch (err) {
-      error = err
-    }
-
-    assert.instanceOf(error, Error)
-    done()
-  })
-
-  it('Should pipe the request to multiple targets', done => {
+  it('Pipes the request to multiple targets', done => {
     const serverPort = getPort()
     const t1port = getPort()
     const t2port = getPort()
 
     const server = new Forwarder({
-      forwardTargets: [`http://127.0.0.1:${t1port}`, `http://127.0.0.1:${t2port}`]
+      targets: [`http://127.0.0.1:${t1port}`, `http://127.0.0.1:${t2port}`]
     })
 
     const targets = {}
@@ -74,36 +49,17 @@ describe('Forwarder HTTP', () => {
     }, () => {}).end()
   })
 
-  it('Should overwrite the host header with the target host', done => {
+  it('Allows us to cancel a forward via the preForwardRequest event', done => {
     const serverPort = getPort()
     const t1port = getPort()
 
     const server = new Forwarder({
-      forwardTargets: [`http://127.0.0.1:${t1port}`]
+      targets: [`http://127.0.0.1:${t1port}`]
     })
 
-    const target = http.createServer(req => {
-      assert.strictEqual(req.headers['host'], `127.0.0.1:${t1port}`)
-      target.close()
-      server.close()
-      done()
-    }).listen(t1port)
-
-    server.listen(serverPort)
-    http.request(`http://127.0.0.1:${serverPort}`, () => {}).end()
-  })
-
-  it('Should allow us to cancel a forward via the preForwardRequest event', done => {
-    const serverPort = getPort()
-    const t1port = getPort()
-
-    const server = new Forwarder({
-      forwardTargets: [`http://127.0.0.1:${t1port}`]
-    })
-
-    server.on('forwardRequest', info => {
-      if (info.host === `127.0.0.1:${t1port}`) {
-        info.cancel = true
+    server.on('forwardRequest', params => {
+      if (params.request.host === `127.0.0.1:${t1port}`) {
+        params.cancel = true
       }
     })
 
@@ -123,12 +79,12 @@ describe('Forwarder HTTP', () => {
     }).end()
   })
 
-  it('Should return 200 by default if target responds with 20x', done => {
+  it('Returns 200 by default if target responds with 20x', done => {
     const serverPort = getPort()
     const t1port = getPort()
 
     const server = new Forwarder({
-      forwardTargets: [`http://127.0.0.1:${t1port}`]
+      targets: [`http://127.0.0.1:${t1port}`]
     })
 
     const target = http.createServer((req, res) => {
@@ -145,12 +101,12 @@ describe('Forwarder HTTP', () => {
     }).end()
   })
 
-  it('Should return 200 by default if target responds with an error', done => {
+  it('Returns 200 by default if target responds with an error', done => {
     const serverPort = getPort()
     const t1port = getPort()
 
     const server = new Forwarder({
-      forwardTargets: [`http://127.0.0.1:${t1port}`]
+      targets: [`http://127.0.0.1:${t1port}`]
     })
 
     const target = http.createServer((req, res) => {
@@ -167,12 +123,12 @@ describe('Forwarder HTTP', () => {
     }).end()
   })
 
-  it('Should return 200 by default if target doesnt respond at all', done => {
+  it('Returns 200 by default if target doesnt respond at all', done => {
     const serverPort = getPort()
     const t1port = getPort()
 
     const server = new Forwarder({
-      forwardTargets: [`http://127.0.0.1:${t1port}`]
+      targets: [`http://127.0.0.1:${t1port}`]
     })
 
     server.listen(serverPort)
@@ -184,12 +140,12 @@ describe('Forwarder HTTP', () => {
     }).end()
   })
 
-  it('Should allow us to hook into the main request/response event', done => {
+  it('Allows us to hook into the main request/response event', done => {
     const serverPort = getPort()
     const t1port = getPort()
 
     const server = new Forwarder({
-      forwardTargets: [`http://127.0.0.1:${t1port}`]
+      targets: [`http://127.0.0.1:${t1port}`]
     })
 
     const target = http.createServer((req, res) => {
@@ -211,12 +167,12 @@ describe('Forwarder HTTP', () => {
     }).end()
   })
 
-  it('Should allow us to hook into the forward request/response event', done => {
+  it('Allows us to hook into the forward request/response event', done => {
     const serverPort = getPort()
     const t1port = getPort()
 
     const server = new Forwarder({
-      forwardTargets: [`http://127.0.0.1:${t1port}`]
+      targets: [`http://127.0.0.1:${t1port}`]
     })
 
     const target = http.createServer((req, res) => {
@@ -237,66 +193,12 @@ describe('Forwarder HTTP', () => {
     http.request(`http://127.0.0.1:${serverPort}`, () => {}).end()
   })
 
-  it('Should allow us to add headers to the request before forwarding to each server', done => {
-    const serverPort = getPort()
-    const t1port = getPort()
-    const t2port = getPort()
-
-    const server = new Forwarder({
-      forwardTargets: [`http://127.0.0.1:${t1port}`, `http://127.0.0.1:${t2port}`],
-      forwardHeaders: { 'my-header': 'my-value' }    // This header should be set for all forwards
-    })
-    server.on('forwardRequest', info => {
-      if (info.headers['host'] === `127.0.0.1:${t2port}`) {
-        info.headers['my-specific-header'] = 'my-specific-value'
-      }
-    })
-
-    let target1, target2
-    const doneTargets = new Set()
-    const closeAll = () => {
-      target1.close()
-      target2.close()
-      server.close()
-      done()
-    }
-
-    target1 = http.createServer(req => {
-      assert.property(req.headers, 'my-header')
-      assert.strictEqual(req.headers['my-header'], 'my-value')
-      assert.notProperty(req.headers, 'my-specific-header')
-      doneTargets.add(t1port)
-      if (doneTargets.size == 2) {
-        closeAll()
-      }
-    })
-    target1.listen(t1port)
-
-    target2 = http.createServer(req => {
-      assert.property(req.headers, 'my-header')
-      assert.strictEqual(req.headers['my-header'], 'my-value')
-      assert.property(req.headers, 'my-specific-header')
-      assert.strictEqual(req.headers['my-specific-header'], 'my-specific-value')
-      doneTargets.add(t2port)
-      if (doneTargets.size == 2) {
-        closeAll()
-      }
-    })
-    target2.listen(t2port)
-
-    server.listen(serverPort)
-    http.request({
-      hostname: '127.0.0.1',
-      port: serverPort,
-      method: 'POST'
-    }, () => {}).end()
-  })
-
-  it('Should allow us to hook into any forward errors', done => {
+  it('Allows us to hook into any forward errors', done => {
     const serverPort = getPort()
 
     const server = new Forwarder({
-      forwardTargets: ['http://127.0.0.1:1']
+      targets: ['http://127.0.0.1:1'],
+      targetRetry: {maxRetries: 0}
     })
 
     server.listen(serverPort)
@@ -308,56 +210,17 @@ describe('Forwarder HTTP', () => {
     http.request(`http://127.0.0.1:${serverPort}`, () => {}).end()
   })
 
-  it('Should allow us to add options to the request', done => {
-    const serverPort = getPort()
-    const t1port = getPort()
-
-    const server = new Forwarder({
-      forwardTargets: [`http://127.0.0.1:${t1port}`],
-      forwardOpts: {auth: 'myname:mypass'}
-    })
-
-    const target = http.createServer(req => {
-      assert.property(req.headers, 'authorization')
-      target.close()
-      server.close()
-      done()
-    }).listen(t1port)
-
-    server.listen(serverPort)
-    http.request(`http://127.0.0.1:${serverPort}`, () => {}).end()
-  })
-
-  it('Should append the incomming path to the target URL', done => {
-    const serverPort = getPort()
-    const t1port = getPort()
-
-    const server = new Forwarder({
-      forwardTargets: [`http://127.0.0.1:${t1port}/basepath`]
-    })
-
-    const target = http.createServer(req => {
-      assert.equal(req.url, '/basepath/reqpath/bonus')
-      target.close()
-      server.close()
-      done()
-    }).listen(t1port)
-
-    server.listen(serverPort)
-    http.request(`http://127.0.0.1:${serverPort}/reqpath/bonus`, () => {}).end()
-  })
-
-  it('Should allow us to add target specific headers to the request', done => {
+  it('Allows us to add target specific headers to the request', done => {
     const serverPort = getPort()
     const t1port = getPort()
     const t2port = getPort()
 
     const server = new Forwarder({
-      forwardTargets: [{
-        url: `http://127.0.0.1:${t1port}`,
-        headers: {somehead: 'i-am-t1'}
-      }, `http://127.0.0.1:${t2port}`],
-      forwardHeaders: { 'my-header': 'my-value' }    // This header should be set for all forwards
+      targets: [
+        {url: `http://127.0.0.1:${t1port}`, headers: {somehead: 'i-am-t1'}},
+        `http://127.0.0.1:${t2port}`
+      ],
+      targetHeaders: {'my-header': 'my-value'}    // This header should be set for all forwards
     })
 
     let target1, target2
@@ -398,5 +261,98 @@ describe('Forwarder HTTP', () => {
       method: 'POST'
     }, () => {}).end()
   })
+
+  describe('Retries', () => {
+    it('Retries GET requests if target in error', done => {
+      const serverPort = getPort()
+
+      const server = new Forwarder({
+        targets: ['http://127.0.0.1:1234'],
+        targetRetry: {
+          maxRetries: 2, // we'll have 3 requests
+          delay: 1,
+          retryOnInternalError: false
+        }
+      })
+
+      server.listen(serverPort)
+      let nbRequests = 1
+      server.on('forwardRequestError', (err, req, retry) => {
+        assert.instanceOf(err, Error)
+        if (nbRequests < 3) {
+          assert.ok(retry)
+          nbRequests += 1
+          return
+        }
+
+        assert.equal(3, nbRequests)
+        assert.notOk(retry)
+        server.close()
+        done()
+      })
+
+      http.request(`http://127.0.0.1:${serverPort}`, res => {
+        assert.strictEqual(res.statusCode, 200)
+      }).end()
+    })
+
+    it('Retries POST requests if target in 500 error', done => {
+      const serverPort = getPort()
+      const t1port = getPort()
+
+      let nbRequests = 1
+      const target1 = http.createServer((req, res) => {
+        if (nbRequests < 3) {  // Sends internal error on first 2 calls, success on the third one.
+          nbRequests += 1
+          res.writeHead(500)
+          res.end()
+          return
+        }
+
+        let data = ''
+        req.on('data', chunk => {
+          data += chunk
+        })
+        req.on('end', () => {
+          assert.deepEqual(JSON.parse(data), {hello: 'my friend'})
+          res.writeHead(200)
+          res.end()
+        })
+      })
+      target1.listen(t1port)
+
+      const server = new Forwarder({
+        targets: [`http://127.0.0.1:${t1port}`],
+        targetRetry: {
+          maxRetries: 2, // we'll have 3 requests
+          delay: 1,
+          retryOnInternalError: true
+        }
+      })
+      server.listen(serverPort)
+      server.on('forwardResponse', (req, inc, retry) => {
+        if (nbRequests < 3) {
+          assert.ok(retry)
+          nbRequests += 1
+          return
+        }
+
+        assert.equal(3, nbRequests)
+        assert.notOk(retry)
+        target1.close()
+        server.close()
+        done()
+      })
+
+      const req = http.request(
+          {host: '127.0.0.1', port: serverPort, method: 'POST'},
+          res => assert.strictEqual(res.statusCode, 200)
+        )
+      req.write(JSON.stringify({hello: 'my friend'}))
+      req.end()
+    })
+
+  })
+
 })
 

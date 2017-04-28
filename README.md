@@ -3,11 +3,12 @@
 [![Build
 Status](https://travis-ci.org/radiofrance/node-forwarder-http.svg?branch=master)](https://travis-ci.org/radiofrance/node-forwarder-http)
 
-```forwarder-http``` is a simple HTTP/HTTPS forwarder. On each request it :
+```forwarder-http``` is a HTTP/HTTPS forwarder. On each request it :
 
 - Replies to the sender immediately with a ```200``` (unless you configure it
 otherwise)
 - Forwards the request to all configured target servers
+- Can be configured to retry requests to specific targets, on error or 5xx response
 
 It is meant to be simple, pluggable via Events, and totally configurable.
 
@@ -16,7 +17,8 @@ It currently supports only ```node >=6.x.x```.
 ## Our use case at @RadioFrance
 
 We built this library because we needed a tiny-footprint tool to dispatch
-incomming production data to different development environments.
+incomming production data to different development environments. As with any distributed system,
+requests sometimes fail so the forwarder should retry all requests on the production env, at least.
 
 ## How-to
 
@@ -27,10 +29,21 @@ const Forwarder = require('forwarder-http')
 
 const server = new Forwarder({
   // The servers to forward the request to
-  forwardTargets: ['http://target-nb-1.com', 'http://target-nb-2.com'],
+  targets: [
+    'http://target-nb-1.com', // use default target configs
+    {                         // Overwrite some of the default configs
+      url: 'http://target-nb-2.com',
+      headers: {
+        'my-nb1-header': 'my-nb1-val'
+      },
+      retry: {
+        maxRetries: 3
+      }
+    }
+  ],
 
   // Add a header to the request before forwarding
-  forwardHeaders: {'token': 'some-complicated-hash'},
+  targetHeaders: {'token': 'some-complicated-hash'},
 
   // Define the forwarder response statusCode (default: 200)
   responseStatusCode: 204
@@ -49,14 +62,47 @@ control on how each request and response is handler:
 - **https**: _object_. Options to pass to the _https.createServer_ constructor.
 Required when using https.
 - **timeout**: _int_. Timeout on requests to targets. (Default: null)
-- **forwardTargets**: _array_. List of target URLs to forward requests to. See
+- **targets**: _array_. A list of target URLs or target objects to forward requests to. See
 [the examples](https://github.com/radiofrance/node-http-forwarder/blob/master/examples).
-- **forwardHeaders**: _object_. Headers to add to the forwarded request
+- **targetHeaders**: _object_. Headers to add to the forwarded request
 (Default: empty).
-- **forwardOpts**: _object_. Options to pass to the http/https request constructor. See [the example](https://github.com/radiofrance/node-forwarder-http/blob/master/examples/using-https) and [all the options](https://nodejs.org/api/https.html#https_https_request_options_callback)
+- **targetOpts**: _object_. Options to pass to the http/https request constructor. See [the example](https://github.com/radiofrance/node-forwarder-http/blob/master/examples/using-https) and [all the options](https://nodejs.org/api/https.html#https_https_request_options_callback)
+- **targetRetry** _object_. Retry options for all targets, with one or more of the following properties:
+    - **maxRetries**: _int_, default 0. Maximum number or retries the forwarder will perform.
+    - **delay**: _int_, default 300 (ms). Time slot for exponential backoff retry intervals
+    (cf. [Wikipedia Exponential Backoff](https://en.wikipedia.org/wiki/Exponential_backoff))
+    - **retryOnInternalError**: _bool_, default false. Should the forwarder also retry if the targets respond with a 5xx status code ?
 - **responseStatusCode**: _int_. Status code the forward server will use when responding to requests (Default: 200)
 - **responseBody**: _string_. Body the forward server will use when responding to requests (Default: 'OK')
 - **responseHeaders**: _object_. Headers the forward server will use when responding to requests (Default: empty)
+
+### Target configuration objects
+
+The forwarder options accept the targets array to contain many items in one the following forms :
+
+- string in the form ```http://somehost:12345```
+
+- an object like:
+
+```
+{
+    url: 'https://somehost:12345',
+    opts: {
+        key: 'mykey',
+        cert: 'my cert',
+        rejectUnauthorized: false
+    },
+    headers: {
+        someHeader: 'someVal'
+    },
+    retry: {
+        maxRetries: 2
+    }
+}
+
+```
+
+The options passed in the object will overwrite the default forwarder options.
 
 ## Events
 
@@ -76,10 +122,10 @@ request before it is sent. The first argument is the options array passed on to 
 constructors, after all the config headers and options avec been applied. If you set ```options.cancel = true``` it
 will cancel the forwarding of the current request to the current target. Check out the examples for ... well ...
 examples on this.
-- **forwardResponse** ```(request, incommingMessage)```: allows you to act on
-individual target responses.
-- **forwardRequestError** ```(error, request)```: error when forwarding
-a request to specific targets.
+- **forwardResponse** ```(request, incommingMessage, willRetry)```: allows you to act on individual target responses. The ```willRetry``` option indicates if a retry will be performed by the forwarder (in the case of
+5xx responses).
+
+- **forwardRequestError** ```(error, request, willRetry)```: error when forwarding a request to specific targets.
 
 See [the example on how to use the events](https://github.com/radiofrance/node-forwarder-http/blob/master/examples/using-events.js).
 

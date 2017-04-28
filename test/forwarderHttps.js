@@ -25,7 +25,7 @@ describe('Forwarder HTTPS', () => {
         key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
         cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem'))
       },
-      forwardTargets: [`http://127.0.0.1:${t1port}`]
+      targets: [`http://127.0.0.1:${t1port}`]
     })
 
     const target = http.createServer(req => {
@@ -56,8 +56,8 @@ describe('Forwarder HTTPS', () => {
         key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
         cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem'))
       },
-      forwardTargets: [`https://127.0.0.1:${t1port}`],
-      forwardOpts: {
+      targets: [`https://127.0.0.1:${t1port}`],
+      targetOpts: {
         rejectUnauthorized: false
       }
     })
@@ -88,8 +88,8 @@ describe('Forwarder HTTPS', () => {
     const t1port = getPort()
 
     const server = new Forwarder({
-      forwardTargets: [`https://127.0.0.1:${t1port}`],
-      forwardOpts: {
+      targets: [`https://127.0.0.1:${t1port}`],
+      targetOpts: {
         rejectUnauthorized: false
       }
     })
@@ -121,7 +121,7 @@ describe('Forwarder HTTPS', () => {
     const t2port = getPort()
 
     const server = new Forwarder({
-      forwardTargets: [
+      targets: [
         `http://127.0.0.1:${t1port}`,
         {
           url: `https://127.0.0.1:${t2port}`,
@@ -169,7 +169,7 @@ describe('Forwarder HTTPS', () => {
     const t1port = getPort()
 
     const server = new Forwarder({
-      forwardTargets: [`https://127.0.0.1:${t1port}`]
+      targets: [`https://127.0.0.1:${t1port}`]
     })
 
     const target = https.createServer({

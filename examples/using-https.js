@@ -21,10 +21,10 @@ const server = new Forwarder({
   // cf. https://nodejs.org/api/https.html#https_https_createserver_options_requestlistener
   httpsOpts: {key, cert},
   // The servers to forward the request to (also using HTTPS in this example)
-  forwardTargets: ['https://127.0.0.1:9001', 'https://127.0.0.1:9002'],
+  targets: ['https://127.0.0.1:9001', 'https://127.0.0.1:9002'],
   // Options passed to the https.request call
   // cf. https://nodejs.org/api/https.html#https_https_request_options_callback
-  forwardOpts: {
+  targetOpts: {
     rejectUnauthorized: false
   }
 })
