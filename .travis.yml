@@ -1,5 +1,12 @@
 language: node_js
 node_js:
-  - "6"
-  - "7"
+- '6'
+- '7'
 
+deploy:
+   api_key:
+     secure: TtSWLev8QCgItyuX7Br184INIOlLoXt+FmHzoo0sYpYQbWasuoOPbmvwcsZlOvQMdAbP4u6JPn3wGAoLKz5KuQ48ELhNGUXmxBEDOWH6NFpThBNOBNWVVCeK6wd0WXf6vtd9yMeu3EJEich+3FA5JqDx6ym+PJv7KbAQHgM0g/TPsdFLp/6pVbWH0/vS9RIi7zYj1DOIApRLFUh5PPLW9dCTiKZiNU7EVO+Yw99GWOv1I3DHxkXzMBxyxd93Fbqq+MbuEsbywtmkLhzd+Cjjc36spB+LJANx7n/Aec0+EA0kAw06I5xK4Gk2O1D+2GN5Vb0bXgAqffF+/uSL6nPbP+Spuoggrhzmgc3wqeu2tAR//Wu+A2w/VykbU7JiW6jtlCYTpNJw3JjIeyC1g+fycwZRq4iiiDbToaM+yi3OuEfCxEJIRZAJ0kdxCmbjIATLvV4IfTxwNCDorAIoHVxwvksFr+oltIGhGH93PxJwM1wXy/QFps3O+zvITyogYbi1esLejj31Lst0OQEInXQzYslK/lJQvgLjtHuaGFSRUlIA3l9wOR6LuH5/r2xZV/tWOOJtyuFSsCx3Y6sxVC1tk+FeMWXoGp3zdZqPMTQgFiZXKHxS9ps0ke5ShUj3KSusYsNjTTnYOeiD8HkMcpO1sc6K5BHuRTHr7pYgoI6wmZI=
+   email: opensource@radiofrance.com
+   provider: npm
+   on:
+    tags: true
