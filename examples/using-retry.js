@@ -7,6 +7,7 @@
  * Example: Using Retry
  */
 
+/* eslint-disable no-console */
 const http = require('http')
 const Forwarder = require('../lib/Forwarder')
 
@@ -40,13 +41,14 @@ http.createServer((req, res) => {
 }).listen(9002)
 
 // Send a request
-console.log("SCRIPT: Sending a request to the forwarder: POST /somepath")
-http.request({
-  hostname: '127.0.0.1',
-  port: 9000,
-  path: '/somepath',
-  method: 'POST'
-}, res => {
-  console.log(`SCRIPT: Forwarder replied ${res.statusCode} ${res.statusMessage}.`)
-}).end()
+console.log('SCRIPT: Sending a request to the forwarder: POST /somepath')
+http.request(
+  {
+    hostname: '127.0.0.1',
+    port: 9000,
+    path: '/somepath',
+    method: 'POST'
+  },
+  res => console.log(`SCRIPT: Forwarder replied ${res.statusCode} ${res.statusMessage}.`)
+).end()
 

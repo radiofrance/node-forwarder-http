@@ -1,72 +1,20 @@
 {
     "root": true,
-    "parserOptions": {
-      "ecmaVersion": 2016
-    },
     "plugins": [
         "node"
     ],
     "extends": [
-        "eslint:recommended",
-        "plugin:node/recommended"
+        "airbnb-base"
     ],
     "env": {
         "browser": false,
-        "node": true,
-        "es6": true
+        "node": true
     },
     "rules": {
-        "array-bracket-spacing": [2, "never"],
-        "arrow-spacing": [2, { "before": true, "after": true }],
-        "arrow-parens": [2, "as-needed"],
-        "block-spacing": [2, "never"],
-        "brace-style": [2, "1tbs", { "allowSingleLine": false }],
-        "camelcase": [2, { "properties": "always" }],
-        "comma-spacing": [2, { "before": false, "after": true  }],
-        "comma-dangle": [2, "never"],
-        "eol-last": [2, "always"],
-        "generator-star-spacing": [2, { "before": false, "after": true }],
-        "global-require": 2,
-        "func-call-spacing": 2,
-        "indent": [2, 2, { "SwitchCase": 1 }],
-        "max-len": [2, 120, 2],
-        "no-confusing-arrow": [2, { "allowParens": true }],
-        "no-multiple-empty-lines": [2, { "max": 2, "maxBOF": 0, "maxEOF": 1 } ],
-        "no-useless-computed-key": 2,
-        "no-useless-constructor": 2,
-        "no-useless-rename": [2, { "ignoreDestructuring": false }],
-        "no-var": 2,
-        "no-catch-shadow": 2,
-        "no-label-var": 2,
-        "no-shadow": 2,
-        "no-shadow-restricted-names": 2,
-        "no-undef": 2,
-        "no-undef-init": 2,
-        "no-undefined": 2,
-        "no-use-before-define": 2,
-        "no-unexpected-multiline": 2,
-        "object-shorthand": [2, "always", { "ignoreConstructors": false, "avoidQuotes": true }],
-        "quotes": [2, "single", { "avoidEscape": true }],
-        "quote-props": [2, "as-needed"],
-        "prefer-arrow-callback": [2, { "allowNamedFunctions": false, "allowUnboundThis": true }],
-        "prefer-const": [2, { "destructuring": "any", "ignoreReadBeforeAssign": true }],
-        "prefer-reflect": 0,
-        "prefer-rest-params": 2,
-        "prefer-spread": 2,
-        "prefer-template": 2,
-        "rest-spread-spacing": [
-            2,
-            "never"
-        ],
-        "semi": [2, "never"],
-        "space-unary-ops": [2, { "words": false, "nonwords": false }],
-        "template-curly-spacing": 2,
-        "yield-star-spacing": [
-            2,
-            "after"
-        ],
-        "node/exports-style": [2, "module.exports"],
-        "node/no-unpublished-require": 0
+    "comma-dangle": [2, "never"],
+    "max-len": [2, 120, 2],
+    "no-console": [2],
+    "semi": [2, "never"]
     }
 }
 

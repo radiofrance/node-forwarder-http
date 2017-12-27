@@ -7,12 +7,26 @@
  * Example: Using events
  */
 
+/* eslint-disable no-console, no-param-reassign */
 const http = require('http')
+const fs = require('fs')
 const Forwarder = require('../lib/Forwarder')
+
+const target = name => (req, res) => {
+  // Buffer the received payload
+  const data = []
+  req.on('data', chunk => data.push(chunk))
+
+  req.on('end', () => {
+    console.log(`[${name}] Received: ${req.method} ${req.url}.`, 'Headers', req.headers)
+    console.log(`[${name}] Payload totals: ${data.length} chunks, ${Buffer.byteLength(Buffer.concat(data))} bytes`)
+    res.end()
+  })
+}
 
 const server = new Forwarder({
   // The servers to forward the request to. One of them doesn't exist.
-  targets: ['http://127.0.0.1:9001', 'http://127.0.0.1:9002', 'http://127.0.0.1:9003'],
+  targets: ['http://127.0.0.1:9001', 'http://127.0.0.1:9002', 'http://127.0.0.1:9003']
 })
 server.listen(9000)
 
@@ -27,15 +41,20 @@ server.on('request', (inc, res) => {
   inc.headers['x-query-token'] = 'mytoken'
 })
 
+server.on('requestContents', (inc, payload) => {
+  console.log(`[SCRIPT]   Request body size is ${payload.byteLength} bytes`)
+})
+
 server.on('response', (inc, res) => {
   // Send the token back with the forwarder response
   res.setHeader('x-query-token', inc.headers['x-query-token'])
 })
 
-server.on('forwardRequest', params => {
+server.on('forwardRequest', (params) => {
   // Cancel requests to a target
   if (params.request.host === '127.0.0.1:9002') {
     params.cancel = true
+    console.log('[SCRIPT]   Canceling request to TARGET 2')
   }
 
   // Set a header on all forwards for a specific target
@@ -46,34 +65,30 @@ server.on('forwardRequest', params => {
 
 // Capture responses from each of the targets
 server.on('forwardResponse', (req, inc) => {
-  console.log(`TARGET ${req.getHeader('host')} responded: ${inc.statusCode} : ${inc.statusMessage}`)
+  console.log(`[SCRIPT]   ${req.getHeader('host')} responded: ${inc.statusCode} : ${inc.statusMessage}`)
 })
 
 // Capture errors in any of the targets
-server.on('forwardRequestError', (err, req, willRetry) => {
-  console.log(`TARGET ${req.getHeader('host')} failed: ${err.code} ${err.message}`)
+server.on('forwardRequestError', (err, req) => {
+  console.log(`[SCRIPT]   ${req.getHeader('host')} failed: ${err.code} ${err.message}`)
 })
 
 // Start target servers
-http.createServer((req, res) => {
-  console.log(`TARGET http://127.0.0.1:9001 (${req.headers['who-are-you']}):  Received: ${req.method} ${req.url}. Token="${req.headers['x-query-token']}"`)
-  res.end()
-}).listen(9001)
-http.createServer((req, res) => {
-  console.log(`TARGET http://127.0.0.1:9002  Received: ${req.method} ${req.url}. Token="${req.headers['x-query-token']}"`)
-  res.end()
-}).listen(9002)
+http.createServer(target('TARGET_1')).listen(9001)
+http.createServer(target('TARGET_2')).listen(9002)
 
 // Send a request
-console.log("SCRIPT: Sending a request to the forwarder: POST /somepath")
-http.request({
-  hostname: '127.0.0.1',
-  port: 9000,
-  path: '/somepath',
-  method: 'POST'
-}, res => {
-  console.log(
-    `SCRIPT: Forwarder replied ${res.statusCode} ${res.statusMessage}. Token="${res.headers['x-query-token']}"`
-  )
-}).end()
+console.log('[SCRIPT]   Sending a request to the forwarder: POST /somepath')
+const req = http.request(
+  {
+    hostname: '127.0.0.1',
+    port: 9000,
+    path: '/somepath',
+    method: 'POST'
+  },
+  res => console.log(`[SCRIPT]   Forwarder replied ${res.statusCode} ${res.statusMessage}.`, 'headers', res.headers)
+)
+
+const data = fs.createReadStream('./testfile.3mb.test', { flags: 'r', highWaterMark: 16 * 1024 })
+data.pipe(req, { end: true })
 

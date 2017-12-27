@@ -4,18 +4,18 @@
  */
 
 const Forwarder = require('../lib/Forwarder')
-const assert = require('chai').assert
+const { assert } = require('chai')
 const http = require('http')
 const https = require('https')
 const fs = require('fs')
 const path = require('path')
 
 // Port generator to avoid conflicts when tests are run in parallel
-let currentPort = 1024
-const getPort = () => currentPort++
+let currentPort = 1024 // eslint-disable-line no-unused-vars
+const getPort = () => currentPort++ // eslint-disable-line no-plusplus
 
 describe('Forwarder HTTPS', () => {
-  it('Should pipe HTTPS to HTTP', done => {
+  it('Should pipe HTTPS to HTTP', (done) => {
     const serverPort = getPort()
     const t1port = getPort()
 
@@ -28,9 +28,10 @@ describe('Forwarder HTTPS', () => {
       targets: [`http://127.0.0.1:${t1port}`]
     })
 
-    const target = http.createServer(req => {
-      assert.equal(req.method, 'GET'),
+    const target = http.createServer((req, res) => {
+      assert.equal(req.method, 'GET')
       assert.equal(req.url, '/somepath')
+      res.end()
       target.close()
       server.close()
       done()
@@ -46,7 +47,7 @@ describe('Forwarder HTTPS', () => {
     }, () => {}).end()
   })
 
-  it('Should pipe HTTPS to HTTPS', done => {
+  it('Should pipe HTTPS to HTTPS', (done) => {
     const serverPort = getPort()
     const t1port = getPort()
 
@@ -65,9 +66,10 @@ describe('Forwarder HTTPS', () => {
     const target = https.createServer({
       key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
       cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem'))
-    }, req => {
-      assert.equal(req.method, 'GET'),
+    }, (req, res) => {
+      assert.equal(req.method, 'GET')
       assert.equal(req.url, '/somepath')
+      res.end()
       target.close()
       server.close()
       done()
@@ -83,7 +85,7 @@ describe('Forwarder HTTPS', () => {
     }, () => {}).end()
   })
 
-  it('Should pipe HTTP to HTTPS', done => {
+  it('Should pipe HTTP to HTTPS', (done) => {
     const serverPort = getPort()
     const t1port = getPort()
 
@@ -97,8 +99,9 @@ describe('Forwarder HTTPS', () => {
     const target = https.createServer({
       key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
       cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem'))
-    }, req => {
+    }, (req, res) => {
       assert(req.method, 'GET')
+      res.end()
       target.close()
       server.close()
       done()
@@ -112,10 +115,9 @@ describe('Forwarder HTTPS', () => {
       method: 'GET'
     }, () => {
     }).end()
-
   })
 
-  it('Should allow us to mix HTTP and HTTPS targets', done => {
+  it('Should allow us to mix HTTP and HTTPS targets', (done) => {
     const serverPort = getPort()
     const t1port = getPort()
     const t2port = getPort()
@@ -125,20 +127,21 @@ describe('Forwarder HTTPS', () => {
         `http://127.0.0.1:${t1port}`,
         {
           url: `https://127.0.0.1:${t2port}`,
-          opts: {rejectUnauthorized: false}
+          opts: { rejectUnauthorized: false }
         }
       ]
     })
 
     const doneTargets = new Set()
 
-    const handler = (tgs, p) => req => {
+    const handler = (tgs, p) => (req, res) => {
       assert.strictEqual(req.method, 'POST')
       assert.property(req.headers, 'my-header')
       assert.strictEqual(req.headers['my-header'], 'some-value')
       doneTargets.add(p)
+      res.end()
 
-      if (doneTargets.size == 2) {
+      if (doneTargets.size === 2) {
         doneTargets.forEach(port => tgs[port].close())
         server.close()
         done()
@@ -164,7 +167,7 @@ describe('Forwarder HTTPS', () => {
   })
 
 
-  it('By default, should not allow self-signed certs in target hosts', done => {
+  it('By default, should not allow self-signed certs in target hosts', (done) => {
     const serverPort = getPort()
     const t1port = getPort()
 
@@ -175,13 +178,14 @@ describe('Forwarder HTTPS', () => {
     const target = https.createServer({
       key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
       cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem'))
-    }, () => {
+    }, (req, res) => {
+      res.end()
       target.close()
       server.close()
       assert.fail()
     }).listen(t1port)
 
-    server.on('forwardRequestError', err => {
+    server.on('forwardRequestError', (err) => {
       assert.instanceOf(err, Error)
       target.close()
       server.close()
@@ -195,7 +199,6 @@ describe('Forwarder HTTPS', () => {
       path: '/somepath',
       method: 'GET'
     }, () => {}).end()
-
   })
 })
 
