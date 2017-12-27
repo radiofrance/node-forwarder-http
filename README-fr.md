@@ -80,6 +80,7 @@ du transfer des requêtes, et de tout modifier sur la route.
 
 - **request** ```(incommingMessage, response)```: L'événement ```request``` du
 serveur HTTP/HTTPS. Si vous appelez ```response.end()``` dans un callback callback, la requête ne sera pas transférée.
+- **requestContents** ```(incommingMessage, payload)```: Le contenu de la requête, le ```body```.
 - **response** ```(incommingMessage, response)```: Appelé avant que le serveur
 ne réponde au client.
 - **requestError** ```(error, incommingMessage)```: erreur dans la gestion de la

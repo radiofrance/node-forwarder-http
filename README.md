@@ -109,9 +109,10 @@ The options passed in the object will overwrite the default forwarder options.
 The ```forwarder-http``` library allows you to hook into most of the lifecycle to the
 forwarding process, and change all the requests and responses along the way.
 
-- **request** ```(incommingMessage, response)```: The resquest event from the
+- **request** ```(incommingMessage, response)```: The request event from the
 http/https forward server. If you call ```response.end()``` in a callback, the
 request will not be forwarded.
+- **requestContents** ```(incommingMessage, payload): the body of the request, as a Buffer object.
 - **response** ```(incommingMessage, response)```: Called just before the
 forwarder responds to the client.
 - **requestError** ```(error, incommingMessage)```: error when handling the
