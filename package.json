@@ -32,7 +32,7 @@
     "mocha": "^4.0.0"
   },
   "scripts": {
-    "test": "eslint lib test index.js examples && mocha"
+    "test": "eslint . && mocha"
   },
   "author": "Radio France <opensource@radiofrance.com>",
   "contributors": [
