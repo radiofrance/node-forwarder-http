@@ -49,6 +49,33 @@ describe('Forwarder HTTP', () => {
     }, () => {}).end()
   })
 
+  it('Should not do anything if not targets are defined', (done) => {
+    const serverPort = getPort()
+
+    const server = new Forwarder()
+
+    server.on('forwardRequest', () => {
+      server.close()
+      done(Error('No forward request should be emitted'))
+    })
+
+    server.listen(serverPort)
+    const req = http.request(`http://127.0.0.1:${serverPort}`, (res) => {
+      setTimeout(() => {
+        server.close()
+        try {
+          assert.equal(res.statusCode, 200)
+        }
+        catch (err) {
+          done(err)
+          return
+        }
+
+        done()
+      }, 10)})
+      .end()
+  })
+
   it('Allows us to cancel a forward via the preForwardRequest event', (done) => {
     const serverPort = getPort()
     const t1port = getPort()

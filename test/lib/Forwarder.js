@@ -9,16 +9,29 @@ const parseUrl = require('url').parse
 
 describe('Forwarder', () => {
   describe('Constructor', () => {
-    it('Should throw if no targets are defined', (done) => {
-      let error
+    it('Should not throw if no targets are defined', (done) => {
+      let error = null
       try {
         new Forwarder({}) // eslint-disable-line no-new
+        new Forwarder({ targets: [] }) // eslint-disable-line no-new
+      } catch (err) {
+        error = err
+      }
+
+      assert.isNull(error)
+      done()
+    })
+
+    it('Should throw if targets options is not an array', (done) => {
+      let error
+      try {
+        new Forwarder({ targets: 'bibi' }) // eslint-disable-line no-new
       } catch (err) {
         error = err
       }
 
       assert.instanceOf(error, Error)
-      assert.equal(error.message, 'options.targets cannot be empty')
+      assert.equal(error.message, 'options.targets must be an array (even an empty one)')
       done()
     })
 
