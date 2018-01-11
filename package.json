@@ -1,6 +1,6 @@
 {
   "name": "forwarder-http",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "A simple and configurable HTTP forwarder: streams incomming requests to a list of target servers",
   "repository": {
     "type": "git",
