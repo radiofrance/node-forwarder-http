@@ -60,20 +60,20 @@ describe('Forwarder HTTP', () => {
     })
 
     server.listen(serverPort)
-    const req = http.request(`http://127.0.0.1:${serverPort}`, (res) => {
-      setTimeout(() => {
-        server.close()
-        try {
-          assert.equal(res.statusCode, 200)
-        }
-        catch (err) {
-          done(err)
-          return
-        }
 
-        done()
-      }, 10)})
-      .end()
+    const testCb = response => () => {
+      server.close()
+      try {
+        assert.equal(response.statusCode, 200)
+      } catch (err) {
+        done(err)
+        return
+      }
+
+      done()
+    }
+
+    http.request(`http://127.0.0.1:${serverPort}`, res => setTimeout(testCb(res), 10)).end()
   })
 
   it('Allows us to cancel a forward via the preForwardRequest event', (done) => {
